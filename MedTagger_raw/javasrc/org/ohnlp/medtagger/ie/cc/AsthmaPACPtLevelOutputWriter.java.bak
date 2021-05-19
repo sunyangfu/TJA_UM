@@ -1,0 +1,585 @@
+package org.ohnlp.medtagger.ie.cc;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.collection.CasConsumer_ImplBase;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.JFSIndexRepository;
+import org.apache.uima.jcas.cas.TOP;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.ResourceProcessException;
+import org.apache.uima.util.ProcessTrace;
+
+import org.ohnlp.medtagger.ie.cc.PADOutputWriter.Info;
+import org.ohnlp.medtagger.type.ConceptMention;
+import org.ohnlp.typesystem.type.structured.Document;
+import org.ohnlp.typesystem.type.syntax.NewlineToken;
+import org.ohnlp.typesystem.type.textspan.Sentence;
+
+
+/**
+ * 
+ * Pt-level output
+ * 	 asthma status cannot be determined in a doc-level because it requires multiple 
+ *   evidences cross documents
+ * @author Sunghwan Sohn
+ *
+ * TODO create feature vectors for ML (do it here or in a separated annotator?)
+ */
+public class AsthmaPACPtLevelOutputWriter extends CasConsumer_ImplBase {
+	class Info {
+		String date;
+		String docName;
+		String concept;
+		String norm;
+		int conBegin;
+		int conEnd;
+		String sentence;
+		String senId;
+		String section;
+		
+		public Info() {}
+		
+		public Info(String dt, String docnam, String con, String nm, int cb, int ce,
+				String sen, String sid, String sec) {
+			date = dt;
+			docName = docnam;
+			concept = con;
+			norm = nm;
+			conBegin = cb;
+			conEnd = ce;
+			sentence = sen;
+			senId = sid;
+			section = sec;
+		}
+	}
+	
+	public static final String PARAM_OUTPUTDIR = "OutputDir";
+	public static final String PARAM_INDEXDATEFILE = "IndexDateFile";
+	private File mOutputDir; 
+	private int mDocNum;
+	//key=mcn, val=map of (key=date, val=list of Info")
+	private TreeMap<String, TreeMap<String, ArrayList<Info>>> ptSumMap;
+	private Set<String> diagSections; 
+	private Set<String> exclSections; 
+	private Map<String, String> indexDate; //key=mcn (assume unique mcn), val=index date (yyyy/mm/dd)
+	private Set<String> noMCN; 
+	
+	public void initialize() throws ResourceInitializationException {
+		mDocNum = 0;
+		mOutputDir = new File((String) getConfigParameterValue(PARAM_OUTPUTDIR));
+		if (!mOutputDir.exists()) {
+			mOutputDir.mkdirs();
+		} 
+		
+		ptSumMap = new TreeMap<String, TreeMap<String, ArrayList<Info>>>();
+		
+		diagSections = new HashSet<String>();
+		diagSections.add("20112");
+		diagSections.add("20113");
+		
+		exclSections = new HashSet<String>();
+		exclSections.add("20108"); //social history
+		exclSections.add("20109"); //family history
+		exclSections.add("20107"); //past medical/surgical history
+		exclSections.add("20104"); //current medication
+
+		noMCN = new HashSet<String>();
+		
+		indexDate = new HashMap<String, String>();
+		try {
+			String fnam = (String) getConfigParameterValue(PARAM_INDEXDATEFILE); 
+			BufferedReader br = new BufferedReader(new FileReader(fnam));
+			String line="";
+			//clinic\tindexdate\tstatus
+			while((line=br.readLine()) != null) {
+				if(line.startsWith("//")) continue;
+				String[] str = line.split("\\t");
+				indexDate.put(String.format("%08d", Integer.parseInt(str[0])), str[1]);
+			}	
+			br.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	/**
+	 * process
+	 */
+	public void processCas(CAS aCAS) throws ResourceProcessException {
+		JCas jcas;
+		try {
+			jcas = aCAS.getJCas();
+		} catch (CASException e) {
+			throw new ResourceProcessException(e);
+		}
+
+		JFSIndexRepository indexes = jcas.getJFSIndexRepository();
+		FSIterator<TOP> docIterator = indexes.getAllIndexedFS(Document.type);
+		String docName = "";
+		String mcn = "";
+		String noteDate = "";
+		
+		if (docIterator.hasNext()) {
+			Document docAnn = (Document) docIterator.next();
+			String fileLoc =docAnn.getFileLoc(); 
+			String[] f = fileLoc.split("/");
+			docName = f[f.length-1]; 
+			//System.out.println("---"+docName+" processing---");
+			//docName: 06000125_1033374427_1_SUP_2003-12-05.txt
+			mcn = docName.split("_")[0]; //8 digits
+			noteDate = docName.split("_")[4].replaceAll("-", "").replaceAll(".txt", ""); //yyyymmdd
+		}
+
+		boolean skip = false;
+		String inxDate = indexDate.get(mcn);
+		if(inxDate==null) {
+			if(!noMCN.contains(mcn)) {
+				System.out.println(mcn + " not in the index date file");
+				noMCN.add(mcn);
+			}
+			skip = true;
+		}	
+		else if(!inxDate.equals("")) { //no index date = no asthma
+			if(getDateDiff(inxDate,noteDate)>0) {
+				skip = true;
+				//System.out.println("  "+mcn+"|"+inxDate+"|"+noteDate);
+			}
+		}
+		
+		if(!skip) { 
+			//System.out.println("  "+mcn+"|"+inxDate+"|"+noteDate);
+			List<Info> infoInDoc = new ArrayList<Info>();
+			FSIterator<? extends Annotation> cmIter = jcas.getAnnotationIndex(
+					ConceptMention.type).iterator();
+			while (cmIter.hasNext()) {
+				ConceptMention cm = (ConceptMention) cmIter.next();
+
+				if(exclSections.contains(cm.getSentence().getSegment().getId())) continue;
+
+				//TODO check these attributes are proper!
+				if(!cm.getCertainty().equals("Positive")) continue;
+				if(cm.getStatus().equals("FamilyHistoryOf")) continue; //use Present and HistoryOf
+				if( cm.getStatus().equals("HistoryOf") 
+						&& (!cm.getNormTarget().equals("WHEEZE")) ) continue; //allow HistoryOf only for WHEEZE
+				if(!cm.getExperiencer().equals("Patient")) continue; 
+
+				Info i = new Info(noteDate, docName, cm.getCoveredText(), cm.getNormTarget(),
+						cm.getBegin(), cm.getEnd(), cm.getSentence().getCoveredText(),
+						cm.getSentence().getId(), cm.getSentence().getSegment().getId());
+
+				infoInDoc.add(i);
+
+				//dateInfoMap: key=date, val=list of Info
+				TreeMap<String, ArrayList<Info>> dateInfoMap = ptSumMap.get(mcn);
+				if(dateInfoMap==null) dateInfoMap = new TreeMap<String, ArrayList<Info>>();
+				ArrayList<Info> infoList =  dateInfoMap.get(noteDate);
+				if(infoList==null) infoList = new ArrayList<Info>();
+				infoList.add(i);
+				dateInfoMap.put(noteDate, infoList);
+				ptSumMap.put(mcn, dateInfoMap);
+			}		
+
+			//if no concept found for the mcn, add null (to get mcn w/o concept)
+			if(ptSumMap.get(mcn)==null) ptSumMap.put(mcn, null);
+
+			printAnnotations(infoInDoc);
+		}
+	}
+	
+	private ArrayList<Info> getPhDiag(TreeMap<String, ArrayList<Info>> dateInfo) {
+		ArrayList<Info> ret = new ArrayList<Info>();
+		
+		for(String date : dateInfo.keySet()) {
+			for(Info i : dateInfo.get(date)) {
+				if(!diagSections.contains(i.section)) continue;				
+				if(i.norm.equals("ASTHMA")) {
+					ret.add(i);
+					return ret;
+				}				
+			}
+			
+			boolean hasCOPD = false;
+			for(Info i : dateInfo.get(date)) {
+				if(!diagSections.contains(i.section)) continue;				
+				if(i.norm.equals("COPD")) {
+					ret.add(i);
+					hasCOPD =  true;
+				}
+			}
+			
+			//TODO check if they should be in the same section instead of the same date
+			if(hasCOPD) {
+				for(Info i : dateInfo.get(date)) {
+					if(!diagSections.contains(i.section)) continue;				
+					if(i.norm.equals("BRONCHOSPASM")) {
+						ret.add(i);
+						return ret;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+	
+	/**
+	 * Return criteria 1 conditions if there exist wheeze and (cough|dyspnea)
+	 * for the same date, OW return null
+	 * @param dateInfo
+	 * @return
+	 */
+	private ArrayList<Info> getCriteria1(TreeMap<String, ArrayList<Info>> dateInfo) {
+		ArrayList<Info> ret = new ArrayList<Info>();
+		boolean metCriteria = false; 
+		
+		//For the same date
+		//TODO check if they should be in the same section
+		for(String date : dateInfo.keySet()) {
+			boolean hasWheeze = false;			
+			for(Info i : dateInfo.get(date)) {
+				if(i.norm.equals("WHEEZE")) { 
+					hasWheeze = true;
+					ret.add(i);
+				}
+			}
+			
+			if(hasWheeze) { 
+				for(Info i : dateInfo.get(date)) {
+					if(i.norm.equals("COUGH")
+							|| i.norm.equals("DYSPNEA")) { 
+						metCriteria = true;	
+						ret.add(i);
+					}
+				}
+			}
+			
+			if(metCriteria) return ret;
+		}
+		
+		return null;
+	}
+	
+	//TODO test
+	private ArrayList<Info> getCriteria2(TreeMap<String, ArrayList<Info>> dateInfo) {		
+		ArrayList<Info> ret = new ArrayList<Info>();
+		List<String> metCondDate = new ArrayList<String>();
+		//For the same date
+		//TODO check if they should be in the same section
+		for(String date : dateInfo.keySet()) {
+			boolean hasWheeze = false;			
+			for(Info i : dateInfo.get(date)) {
+				if(i.norm.equals("WHEEZE")) { 
+					hasWheeze = true;
+					ret.add(i);
+				}
+			}
+			
+			if(hasWheeze) { 
+				for(Info i : dateInfo.get(date)) {
+					if(i.norm.equals("COUGH")
+							|| i.norm.equals("DYSPNEA")) { 
+						metCondDate.add(date);
+						ret.add(i);
+					}
+				}
+			}
+			
+			//TODO check if OK
+			//check if occurs 2 times or more (at least 3 weeks apart within 3 years)
+			for(int i=0; i<metCondDate.size(); i++) {
+				for(int j=i+1; j<metCondDate.size(); j++) { 
+					int interval = getDateDiff(metCondDate.get(i), metCondDate.get(j));
+					if(interval<=21) continue; 
+					if(interval>1095) break; 
+					
+					return ret;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	private ArrayList<Info> getCriteria3(TreeMap<String, ArrayList<Info>> dateInfo) {
+		ArrayList<Info> ret = new ArrayList<Info>();
+		Set<String> metCond = new HashSet<String>();
+		
+		for(String date : dateInfo.keySet()) {	
+			List<Info> night = new ArrayList<Info>();
+			List<Info> antigen = new ArrayList<Info>();
+			List<Info> pulmonaryTest = new ArrayList<Info>();
+
+			for(Info i : dateInfo.get(date)) {					
+				if(i.norm.equals("NIGHTTIME")) 
+					night.add(i);
+				else if(i.norm.equals("EXPOSURE_TO_ANTIGEN")) 
+					antigen.add(i);
+				else if(i.norm.equals("PULMONARY_TEST")) 
+					pulmonaryTest.add(i);			
+			}
+			
+			for(Info i : dateInfo.get(date)) {									
+				//TODO implement smoking status
+				
+				if(i.norm.equals("COUGH") || i.norm.equals("WHEEZE")) {
+					for(Info info : night) {
+						if(isInSameSection(info, i)) {
+							ret.add(i);
+							ret.add(info);
+							metCond.add("NIGHTTIME");
+							break;
+						}
+					}
+				}
+				else if(i.norm.equals("NASAL_POLYPS")) {
+					ret.add(i);
+					metCond.add("NASAL_POLYPS");
+				}
+				else if(i.norm.equals("EOSINOPHILIA_HIGH")) {
+					ret.add(i);
+					metCond.add("EOSINOPHILIA_HIGH");
+				}
+				else if(i.norm.equals("POSITIVE_SKIN")) {
+					ret.add(i);
+					metCond.add("POSITIVE_SKIN");
+				}
+				else if(i.norm.equals("SERUM_IGE_HIGH")) {
+					ret.add(i);
+					metCond.add("SERUM_IGE_HIGH");
+				}
+				else if(i.norm.equals("HAY_FEVER")) {
+					ret.add(i);
+					metCond.add("HAY_FEVER");
+				}
+				else if(i.norm.equals("INFANTILE_ECZEMA")) {
+					ret.add(i);
+					metCond.add("INFANTILE_ECZEMA");
+				}				
+				else if(i.norm.equals("COUGH") || i.norm.equals("WHEEZE") 
+						|| i.norm.equals("DYSPNEA")) {
+					for(Info info : antigen) {
+						if(isInSameSentence(info, i)) {
+							ret.add(i);
+							ret.add(info);
+							metCond.add("EXPOSURE_TO_ANTIGEN");
+							break;
+						}
+					}
+				}
+				//TODO add pulmonary function test	
+				
+				else if(i.norm.equals("FAVORABLE_RESPONSE_BRONCHODILATOR")) {
+					ret.add(i);
+					metCond.add("FAVORABLE_RESPONSE_BRONCHODILATOR");
+				}					
+			}
+			
+			if(metCond.size()>=2) return ret;
+		}
+		
+		return null;
+	}
+		
+	private boolean isInSameSection(Info in1, Info in2) {
+		if(in1.docName.equals(in2.docName) && in1.section.equals(in2.section))
+			return true;
+		
+		return false;
+	}
+	
+	private boolean isInSameSentence(Info in1, Info in2) {
+		if( in1.docName.equals(in2.docName) && in1.senId.equals(in2.senId) )
+			return true;
+		
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param date1 (yyyyMMdd)
+	 * @param date2 (yyyyMMdd)
+	 * @return difference in days (date2 - date1)
+	 */
+	private int getDateDiff(String date1, String date2) {
+		 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd"); 
+		 int diffInDays=0;
+		 
+		 try {
+			 Date d1 = format.parse(date1);
+			 Date d2 = format.parse(date2);
+			 diffInDays = (int)( (d2.getTime() - d1.getTime()) / (1000*60*60*24) );
+		 } catch (ParseException e) {
+			 e.printStackTrace();
+		 }    
+ 
+	     return diffInDays;
+	}
+	
+	private void printAnnotations(List<Info> info) {
+		String toPrint = "";
+		for(Info i : info) {
+			toPrint += i.docName+"|"+i.concept+"|"+i.norm+"|"+i.section+"|"+i.sentence+"\n";
+		}
+		
+		try {
+			String fnam = (String) getConfigParameterValue(PARAM_OUTPUTDIR) 
+							+ File.separator + "asthma.out";
+			BufferedWriter bf = new BufferedWriter(new FileWriter(fnam, true));
+			bf.append(toPrint);
+			bf.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	private String getEvidence(List<Info> info) {
+		String ret = "";
+		int cnt=0;
+		for(Info i : info) {
+			if(cnt>0) ret += "~~";
+			ret += i.docName+"::"+i.section+"::"+i.concept+"::"+i.sentence;
+			cnt++;
+		}	
+		return ret;
+	}
+	
+	private String getEvidence(List<Info> info1, List<Info> info2) {
+		String ret = getEvidence(info1);
+		ret += "~~" + getEvidence(info2);		
+		return ret;
+	}
+	
+	private String getEvidence(List<Info> info1, List<Info> info2, List<Info> info3) {
+		String ret = getEvidence(info1);
+		ret += "~~" + getEvidence(info2);	
+		ret += "~~" + getEvidence(info3);		
+		return ret;
+	}
+	
+	private String getIndexDate(List<Info> info1, List<Info> info2) {
+		SortedSet<String> date = new TreeSet<String>();
+		date.add(info1.get(info1.size()-1).date);
+		date.add(info2.get(info2.size()-1).date);
+		return date.last();
+	}
+	
+	private String getIndexDate(List<Info> info1, List<Info> info2, List<Info> info3) {
+		SortedSet<String> date = new TreeSet<String>();
+		date.add(info1.get(info1.size()-1).date);
+		date.add(info2.get(info2.size()-1).date);
+		date.add(info3.get(info3.size()-1).date);
+		return date.last();
+	}
+	
+	/**
+	 * This method calls once after completion of the process of all documents
+	 * Perform a pt-level asthma status based on the collection of doc-level information in ptSumMap
+	 */
+	public void collectionProcessComplete(ProcessTrace arg0) throws ResourceProcessException, IOException {
+		super.collectionProcessComplete(arg0);
+		
+		//check data
+//		for(String s : ptSumMap.keySet()) {
+//			TreeMap<String, ArrayList<Info>> dateInfoMap = ptSumMap.get(s);
+//			for(String ss : dateInfoMap.keySet()) {
+//				for(Info info : dateInfoMap.get(ss)) {
+//					System.out.println("collection:"+info.date+"|"+info.docName+"|"+info.concept
+//							+"|"+info.norm+"|"+info.conBegin+"|"+info.conEnd+"|"+info.sentence
+//							+"|"+info.senId+"|"+info.section);
+//				}
+//			}
+//		}
+					
+		String toPrint = "";
+		for(String mcn : ptSumMap.keySet()) {
+			TreeMap<String, ArrayList<Info>> dateInfoMap = ptSumMap.get(mcn);
+			boolean isPhDiag = false;
+			boolean metCriteria1 = false;
+			boolean metCriteria2 = false;
+			boolean metCriteria3 = false;
+			
+			if(dateInfoMap==null) { 
+				//System.out.println(mcn + " has no concept");
+				toPrint += mcn+"|"+"NO"+"|"+"|"+"|"+"\n";
+				continue;
+			}
+
+			//check each criteria
+			List<Info> phDiag = getPhDiag(dateInfoMap);
+			List<Info> criteria1 = getCriteria1(dateInfoMap);
+			List<Info> criteria2 = getCriteria2(dateInfoMap);
+			List<Info> criteria3 = getCriteria3(dateInfoMap);
+
+			if(phDiag != null) isPhDiag = true;
+			if(criteria1 != null) metCriteria1 = true;
+			if(criteria2 != null) metCriteria2 = true;
+			if(criteria3 != null) metCriteria3 = true;
+
+			//DO NOT CHANGE THE ORDER OF IF-ELES
+			//check if definite asthma 
+			//1) physician diag AND any of two criteria (note that criteria1 is necessary for criteria2)
+			//2) all three criteria
+			if(isPhDiag && metCriteria1 && metCriteria2) {
+				toPrint += mcn+"|"+"DEFINITE"+"|"+getIndexDate(phDiag,criteria1,criteria2)+"|"
+							+"PhDiag:C1:C2"+"|"+getEvidence(phDiag,criteria1,criteria2)+"\n";						
+			}
+			else if(isPhDiag && metCriteria1 && metCriteria3) {
+				toPrint += mcn+"|"+"DEFINITE"+"|"+getIndexDate(phDiag,criteria1,criteria3)+"|"
+							+"PhDiag:C1:C3"+"|"+getEvidence(phDiag,criteria1,criteria3)+"\n";						
+			}
+			else if(metCriteria1 && metCriteria2 && metCriteria3) {
+				toPrint += mcn+"|"+"DEFINITE"+"|"+getIndexDate(criteria1,criteria2,criteria3)+"|"
+							+"C1:C2:C3"+"|"+getEvidence(criteria1,criteria2,criteria3)+"\n";		
+			}
+			//check if probable asthma
+			//1) physician diagnosis with one or none of criteria
+			//2) only criteria1 and criteria2
+			else if(isPhDiag) {					
+				toPrint += mcn+"|"+"PROBABLE"+"|"+phDiag.get(phDiag.size()-1).date+"|"
+							+"PhD"+"|"+getEvidence(phDiag)+"\n";						
+			}
+			else if(metCriteria1 && metCriteria2) {
+				toPrint += mcn+"|"+"PROBABLE"+"|"+getIndexDate(criteria1,criteria2)+"|"
+							+"C1:C2"+"|"+getEvidence(criteria1, criteria2)+"\n";							
+			}
+			//NO asthma
+			else {
+				toPrint += mcn+"|"+"NO"+"|"+"|"+"|"+"\n";
+			}
+		}
+
+		try {
+			String fnam = (String) getConfigParameterValue(PARAM_OUTPUTDIR) 
+					+ File.separator + "asthma_pt.out";
+			BufferedWriter bf = new BufferedWriter(new FileWriter(fnam));
+			bf.append(toPrint);
+			bf.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,23 @@
+femoral head
+ball
+delta.?head
+ion.?treated
+biolox.? delta
+biolox.?delta
+a ceramic head
+alumina ceramic head
+alumina prosthetic head
+alumna ceramic head
+biolox ceramic head
+biolox.?delta.?head
+biolox.?.?delta.?head
+biolox- delta head
+biolox- femoral head
+biolox-delta ceramic head
+ceramic 32-mm head
+ceramic femoral head
+ceramic offset head
+ceramic, -2.5-mm head
+delta ceramic head
+name: biolox-delta head
+name: biolox-femoral head

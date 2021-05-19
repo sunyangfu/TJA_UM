@@ -1,0 +1,37 @@
+//Level 1 evidence
+
+//
+RULENAME="cm_bear1",REGEXP="\b(%reHip)\b",LOCATION="NA",NORM="tja"
+
+//Direct Mention
+//meta-on-poly
+RULENAME="cm_bear2",REGEXP="\bmetal.?on.?polyethylene\b",LOCATION="NA",NORM="di_meta-on-poly"
+
+//ceramic-on-poly
+RULENAME="cm_bear3",REGEXP="\bceramic.?on.?polyethylene\b",LOCATION="NA",NORM="di_ceramic-on-poly"
+
+//Metal-on-metal
+RULENAME="cm_bear4",REGEXP="\bmetal.?on.?metal\b",LOCATION="NA",NORM="di_metal-on-metal"
+
+//Ceramic-on-ceramic
+RULENAME="cm_bear5",REGEXP="\bceramic.?on.?ceramic\b",LOCATION="NA",NORM="di_ceramic-on-ceramic"
+
+//Indirect Mention
+RULENAME="cm_bear6",REGEXP="\b(%rePoly) (\S?\s?){0,10}(liner|insert)\b",LOCATION="NA",NORM="indi_poly"
+RULENAME="cm_bear7",REGEXP="\b(%reFlat) (\S?\s?){0,10}(liner|insert|poly|plastic|polyethylene)\b",LOCATION="NA",NORM="indi_poly"
+RULENAME="cm_bear8",REGEXP="\b(%reMetal) (\S?\s?){0,10}(&reHead)\b",LOCATION="NA",NORM="indi_metal"
+RULENAME="cm_bear9",REGEXP="\b(%reCeramic) (\S?\s?){0,10}(&reHead)\b",LOCATION="NA",NORM="indi_ceramic"
+RULENAME="cm_bear10",REGEXP="\b(%reMetal)\b",LOCATION="NA",NORM="indi_metal"
+RULENAME="cm_bear11",REGEXP="\b(%reCeramic)\b",LOCATION="NA",NORM="indi_ceramic"
+//RULENAME="cm_bear12",REGEXP="\b(%reHead)\b",LOCATION="NA",NORM="indi_head"
+
+//Brand Mention
+RULENAME="cm_bear7",REGEXP="\b(%rePolybrand)\b",LOCATION="NA",NORM="indi_poly_brand"
+
+//Exclusive
+//RULENAME="fix15_excl",REGEXP="\bimplant name:",LOCATION="NA",NORM="EXCLUSION_shell"
+
+
+
+
+

@@ -1,0 +1,10 @@
+Sunghwan's updates
+medtaggerresources/context/contextRule.txt
+Separated "Hypothetical" from "Possible" - org.ohnlp.medtagger.context.RuleContextAnnotator.java
+added project MedTime-1.0.2 and its resource to use time expression
+
+==bug fix==
+ConText.java
+line 175: regexPseudo = Pattern.compile(regex_PSEUDO.substring(2)); //index 2 to 1
+line 288/289:	String[] words1=sen.split(" "); //" " to " +"
+				String[] words=sentenceTagged.split(" "); //" " to " +"

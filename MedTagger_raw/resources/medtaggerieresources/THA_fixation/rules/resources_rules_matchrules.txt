@@ -1,0 +1,63 @@
+//Level 1 evidence
+//Direct Mention
+	//cemented
+RULENAME="cm_fix1",REGEXP="\b((%reCement) (\S+\s+){0,2}total (\S+\s+){0,4}hip (\S+\s+){0,4}arthroplasty)\b",LOCATION="NA",NORM="di_cement"
+RULENAME="cm_fix2",REGEXP="\b((%reCement) (\S+\s+){0,2}total (\S+\s+){0,4}hip (\S+\s+){0,4}replacement)\b",LOCATION="NA",NORM="di_cement"
+RULENAME="cm_fix3",REGEXP="\b(total (\S+\s+){0,4}hip (\S+\s+){0,4}arthroplasty.?(\S+\s+){0,2}(%reCement))\b",LOCATION="NA",NORM="di_cement"
+RULENAME="cm_fix4",REGEXP="\b(total (\S+\s+){0,4}hip (\S+\s+){0,4}replacement.?(\S+\s+){0,2}(%reCement))\b",LOCATION="NA",NORM="di_cement"
+
+	//uncemented
+RULENAME="cm_fix5",REGEXP="\b(uncemented (\S+\s+){0,5}total (\S+\s+){0,5}hip (\S+\s+){0,5}arthroplasty)\b",LOCATION="NA",NORM="di_uncement"
+RULENAME="cm_fix6",REGEXP="\b(uncemented (\S+\s+){0,5}total (\S+\s+){0,5}hip (\S+\s+){0,5}replacement)\b",LOCATION="NA",NORM="di_uncement"
+RULENAME="cm_fix21",REGEXP="\b(uncemented (\S+\s+){0,5}total (\S+\s+){0,5}arthroplasty)\b",LOCATION="NA",NORM="di_uncement"
+	//Hybrid
+RULENAME="cm_fix7",REGEXP="\b(hybrid (\S+\s+){0,5}total (\S+\s+){0,5}hip (\S+\s+){0,5}replacement)\b",LOCATION="NA",NORM="di_hybrid"
+RULENAME="cm_fix8",REGEXP="\b(total (\S+\s+){0,5}hip (\S+\s+){0,5}arthroplasty, hybrid)\b",LOCATION="NA",NORM="di_hybrid"
+RULENAME="cm_fix9",REGEXP="\b(hybrid (\S+\s+){0,5}total (\S+\s+){0,5}hip (\S+\s+){0,5}arthroplasty)\b",LOCATION="NA",NORM="di_hybrid"
+RULENAME="cm_fix10",REGEXP="\b(hybrid)\b",LOCATION="NA",NORM="hybrid"
+RULENAME="cm_fix22",REGEXP="\b(total (\S+\s+){0,5}arthroplasty (\S+\s+){0,3}hybrid (\S+\s+){0,2}cemented)\b",LOCATION="NA",NORM="di_hybrid"
+
+	//Reverse-hybrid
+RULENAME="cm_fix11",REGEXP="\b(reverse(\S+\s+){0,2} hybrid (\S+\s+){0,5}total (\S+\s+){0,5}hip (\S+\s+){0,5}replacement)\b",LOCATION="NA",NORM="di_rehybrid"
+RULENAME="cm_fix12",REGEXP="\b(total (\S+\s+){0,5}hip (\S+\s+){0,5}arthroplasty, reverse hybrid)\b",LOCATION="NA",NORM="di_rehybrid"
+RULENAME="cm_fix13",REGEXP="\b(reverse(-| )hybrid (\S+\s+){0,5}total (\S+\s+){0,5}hip (\S+\s+){0,5}arthroplasty)\b",LOCATION="NA",NORM="di_rehybrid"
+RULENAME="cm_fix14",REGEXP="\b(reverse(-| )hybrid)\b",LOCATION="NA",NORM="di_rehybrid"
+
+//level 2 evidence
+//Indirect Mention
+	//Shell Positive
+RULENAME="cm_fix15",REGEXP="\b(%reShell)\b",LOCATION="NA",NORM="shell"
+
+	//Shell Negative
+RULENAME="cm_fix16",REGEXP="\b((uncemented|cementless|porous coated|highly porous|highly porous metal|trabecular metal|porous metal|porous tantalum|press.?fit|line(-| )to(-| )line) (\S+\s+){0,9}(%reShell))\b",LOCATION="NA",NORM="shell-neg"
+
+	//Stem Positive
+RULENAME="cm_fix17",REGEXP="\b(%reStem)\b",LOCATION="NA",NORM="stem"
+
+	//Stem Negative
+RULENAME="cm_fix18",REGEXP="\b((uncemented|cementless|porous coated|highly porous|highly porous metal|trabecular metal|porous metal|porous tantalum|press.?fit|line(-| )to(-| )line) (\S+\s+){0,9}(%reStem))\b",LOCATION="NA",NORM="stem-neg"
+
+	//Cement Positive
+RULENAME="cm_fix19",REGEXP="\b(%reCement)\b",LOCATION="NA",NORM="cement"
+
+//Liner detection
+RULENAME="cm_fix20",REGEXP="\bliner.?was.?cemented\b",LOCATION="NA",NORM="liner"
+
+//Exclusive
+//both rulename and norm need to be match the designated rule
+RULENAME="fix15_excl",REGEXP="\b(implant name:)|(cemented (%stem)|(liner.?))",LOCATION="NA",NORM="EXCLUSION_shell"
+RULENAME="fix17_excl",REGEXP="\b(implant name:)|(cemented (%reShell)|(liner.?))",LOCATION="NA",NORM="EXCLUSION_stem"
+//RULENAME="cm_fix24",REGEXP="\bliner (\S+\s+){0,7}(%reCement)\b",LOCATION="NA",NORM="EXCLUSION_stem_cement"
+RULENAME="fix15_excl",REGEXP="\b(components used)\b",LOCATION="NA",NORM="EXCLUSION_shell"
+RULENAME="fix17_excl",REGEXP="\b(components used)\b",LOCATION="NA",NORM="EXCLUSION_stem"
+RULENAME="fix19_excl",REGEXP="\b(components used)\b",LOCATION="NA",NORM="EXCLUSION_cement"
+RULENAME="fix19_excl",REGEXP="\b(stem.? summit cemented)\b",LOCATION="NA",NORM="EXCLUSION_cement"
+
+
+//Remove
+//RULENAME="fix1_remv",REGEXP="\bliner.? (\S+\s+){0,7}(%reCement)\b",LOCATION="NA",NORM="REMOVE"
+//RULENAME="fix2_remv",REGEXP="\bacetabular insert was then cemented\b",LOCATION="NA",NORM="REMOVE"
+//RULENAME="fix15_remv",REGEXP="\b(components used)\b",LOCATION="NA",NORM="REMOVE_shell"
+//RULENAME="fix4_remv",REGEXP="\b(COMPONENTS USED:)\b",LOCATION="NA",NORM="REMOVE"
+
+

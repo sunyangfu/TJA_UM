@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="8ac3fe18-ec20-445f-aaa7-21367976decd" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="DefaultGradleProjectSettings">
+    <option name="isMigrated" value="true" />
+  </component>
+  <component name="ProjectId" id="1TDIAC6aAR4jp8eXnh9vMl9h9my" />
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/medtaggerieresources/delirium" />
+      <recent name="$PROJECT_DIR$/resources/medtaggerieresources/delirium/rules" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.ohnlp.medtagger.cr" />
+      <recent name="org.ohnlp.medtagger.ie.cc" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/medtaggerieresources/delirium/regexp" />
+      <recent name="$PROJECT_DIR$/desc/medtaggeriedesc/aggregate_analysis_engine" />
+      <recent name="$PROJECT_DIR$/desc/medtaggeriedesc/collection_processing_engine" />
+      <recent name="$PROJECT_DIR$/resources/medtaggerieresources" />
+      <recent name="$PROJECT_DIR$/descsrc/org/ohnlp/medtagger/ie/ccs" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.run_cpe">
+    <configuration default="true" type="Applet">
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="run_cpe" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="org.apache.uima.tools.cpm.CpmFrame" />
+      <module name="MedTagger-1.0.1" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="run_cvd" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="org.apache.uima.tools.cvd.CVD" />
+      <module name="MedTagger-1.0.1" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="TestNG">
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+      <predefined_log_file enabled="true" id="idea.log" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.run_cvd" />
+      <item itemvalue="Application.run_cpe" />
+    </list>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration>$USER_HOME$/.subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8ac3fe18-ec20-445f-aaa7-21367976decd" name="Default Changelist" comment="" />
+      <created>1561573527553</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1561573527553</updated>
+      <workItem from="1561573537683" duration="3767000" />
+      <workItem from="1562004194039" duration="481000" />
+      <workItem from="1563485289870" duration="1552000" />
+      <workItem from="1564156510716" duration="4728000" />
+      <workItem from="1565189132273" duration="1585000" />
+      <workItem from="1565299142250" duration="750000" />
+      <workItem from="1565810965136" duration="520000" />
+      <workItem from="1565971039046" duration="8770000" />
+      <workItem from="1568477501393" duration="7000" />
+      <workItem from="1568478995931" duration="18000" />
+      <workItem from="1568734600863" duration="286000" />
+      <workItem from="1568815898039" duration="3814000" />
+      <workItem from="1569266277600" duration="2600000" />
+      <workItem from="1571263273894" duration="902000" />
+      <workItem from="1572988112070" duration="657000" />
+      <workItem from="1572988836669" duration="823000" />
+      <workItem from="1577726418077" duration="2081000" />
+      <workItem from="1578694459906" duration="668000" />
+      <workItem from="1587756813338" duration="301000" />
+      <workItem from="1599688899352" duration="1048000" />
+      <workItem from="1601325778537" duration="471000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>jar://$PROJECT_DIR$/lib/uimaj-core-2.4.0.jar!/org/apache/uima/jcas/JCas.class</url>
+          <line>131</line>
+          <properties class="org.apache.uima.jcas.JCas" method="setDocumentText">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/javasrc/org/ohnlp/medtagger/context/RuleContextAnnotator.java</url>
+          <line>90</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/javasrc/org/ohnlp/medtagger/context/RuleContextAnnotator.java</url>
+          <line>96</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/javasrc/org/ohnlp/medtagger/context/RuleContextAnnotator.java</url>
+          <line>97</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/javasrc/org/ohnlp/medtagger/context/RuleContextAnnotator.java</url>
+          <line>98</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/javasrc/org/ohnlp/medtagger/context/RuleContextAnnotator.java</url>
+          <line>100</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>jcas.getDocumentText().contains(&quot;\n&quot;)</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>jcas.getDocumentText()</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>System.out.println(jcas.getDocumentText())</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
+</project>

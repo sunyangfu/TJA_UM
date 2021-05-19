@@ -1,0 +1,9 @@
+./regexp/resources_regexp_reCeramic.txt
+./regexp/resources_regexp_reFlat.txt
+./regexp/resources_regexp_reHead.txt
+./regexp/resources_regexp_reHip.txt
+./regexp/resources_regexp_reMetal.txt
+./regexp/resources_regexp_rePoly.txt
+./regexp/resources_regexp_rePolybrand.txt
+./rules/resources_rules_matchrules.txt
+./used_resources.txt

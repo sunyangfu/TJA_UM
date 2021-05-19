@@ -1,0 +1,7 @@
+metal
+cobalt
+chrome
+cobalt.?chrome
+stainless steel
+steel
+polished

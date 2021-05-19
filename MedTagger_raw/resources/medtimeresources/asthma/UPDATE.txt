@@ -1,0 +1,16 @@
+updated
+1) line 1412, MedTimeAnnotator.java
+//									String[] parts = valueNew.split("-");
+//									if (parts[3].equals("PLUS"))
+									if (op.equals("PLUS")) //TODO check if it's correct, changed by S Sohn (2015-10-14)
+2) resources
+normUnit, normUnit4Duration, normTUnit 
+- added "sec" and  "secs"	
+- added "hrs"; removed space: between "hr", and "hour"					
+3) resources_rules_setrules.txt
+duplicated rule name: set_r13a -> set_r13b
+4) resources_rules_timerrules.txt
+replaced time_r5f with RULENAME="time_r5f",EXTRACTION="(%reApproximate )?%reTimeHour:%reTimeMinute:%reTimeMinute[\s]*[Pp][\.]?[Mm][\.]?",NORM_VALUE="UNDEF-this-dayT%SUM%(%normDay(group(3)),12):group(4)",NORM_MOD="%normApprox4Dates(group(2))"
+5) duplicated duration_r5l to duration_r5m
+6) duration_r4a to 4f are blocked for the (potential) error (for 2-char unit)
+7) commented date r14

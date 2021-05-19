@@ -1,0 +1,5 @@
+./regexp/resources_regexp_reShell.txt
+./regexp/resources_regexp_reCement.txt
+./regexp/resources_regexp_reStem.txt
+./rules/resources_rules_matchrules.txt
+./used_resources.txt
